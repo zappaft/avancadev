@@ -9,6 +9,7 @@ import (
 	"net/url"
 )
 
+// Result struct contains status
 type Result struct {
 	Status string
 }
@@ -22,16 +23,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 	coupon := r.PostFormValue("coupon")
 	ccNumber := r.PostFormValue("ccNumber")
 
-	resultCoupon := makeHttpCall("http://localhost:9092", coupon)
+	resultCoupon := makeHTTPCall("http://localhost:9092", coupon)
 
 	result := Result{Status: "declined"}
 
 	if ccNumber == "1" {
-		result.Status = "approved"
-	}
-
-	if resultCoupon.Status == "invalid" {
-		result.Status = "invalid coupon"
+		result.Status = resultCoupon.Status
 	}
 
 	jsonData, err := json.Marshal(result)
@@ -42,8 +39,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(jsonData))
 }
 
-
-func makeHttpCall(urlMicroservice string, coupon string) Result {
+func makeHTTPCall(urlMicroservice string, coupon string) Result {
 
 	values := url.Values{}
 	values.Add("coupon", coupon)
